@@ -4,16 +4,18 @@
   "description": "This repository contains the implementation of a request throttling system to optimize requests rate based on the rate-limits we have on each platform for each user which is capable of scheduling requests based on their priorities.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/express": "^4.17.1",
+    "@types/jest": "^29.5.12",
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "jest": "^29.7.0"
   }
 }
