@@ -1,0 +1,15 @@
+{
+  "name": "dust-takehome",
+  "version": "1.0.0",
+  "description": "This repository contains the implementation of a request throttling system to optimize requests rate based on the rate-limits we have on each platform for each user which is capable of scheduling requests based on their priorities.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
