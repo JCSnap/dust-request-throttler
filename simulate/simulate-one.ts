@@ -1,6 +1,5 @@
 /**
- * This is a simulation with many different platforms, with many concurrent requests.
- * It is possible for connections with higher niceness to be processed first, due to rate limits reasons.
+ * This is a simulation with many different platforms, with many concurrent requests. Focusing mainly on workers.
  */
 
 import {
