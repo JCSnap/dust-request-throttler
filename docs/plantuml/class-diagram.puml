@@ -1,0 +1,59 @@
+@startuml
+class PlatformRateLimiter {
+    -platform: string
+    -rateLimit: RateLimit
+    -requestCountThisWindow: number
+    -windowStartTimestamp: number
+    +enqueue(job: Job): void
+    +peek(): Job | null
+    +getHighestPriorityJobIfAllowed(): Job | null
+}
+
+class JobScheduler {
+    -timeInterval: number
+    +pollForJobs(): void
+}
+
+class Job {
+    -fn: (arg: T) => Promise<U>
+    -arg: T
+    -niceness: number
+    +execute(): void
+    +getNiceness(): number
+    +getPromise(): Promise<U>
+}
+
+class PriorityQueue {
+    -elements: T[]
+    +enqueue(item: T): void
+    +peek(): T | null
+    +dequeue(): T | null
+    +isEmpty(): boolean
+}
+
+class Worker {
+    -id: number
+    +isIdle: boolean
+    +work(job: Job): void
+    +getId(): number
+}
+
+interface RateLimit {
+    -requestCounts: number
+    -windowSeconds: number
+}
+
+interface Connection {
+    -platform: string
+    -connection: string
+    -niceness: number
+    -rateLimit: RateLimit
+}
+
+PlatformRateLimiter *-- PriorityQueue
+PlatformRateLimiter --> RateLimit
+Connection --> RateLimit
+Worker --> Job
+JobScheduler *-- "many" PlatformRateLimiter
+JobScheduler *-- "many" Worker
+@enduml
