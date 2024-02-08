@@ -1,4 +1,4 @@
-import { RateLimit } from "./types/rate-limit";
+import { type RateLimit } from "./types/rate-limit";
 import { type Connection } from "./types/connection";
 import { PlatformRateLimiter } from "./platform-rate-limiter";
 import { Job } from "./job";
