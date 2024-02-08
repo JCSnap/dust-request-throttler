@@ -2,10 +2,10 @@ import { RateLimit } from "./types/rate-limit";
 import { type Connection } from "./types/connection";
 import { PlatformRateLimiter } from "./platform-rate-limiter";
 import { Job } from "./job";
-import { TaskScheduler } from "./task-scheduler";
+import { JobScheduler } from "./job-scheduler";
 
-const platformRateLimiters = new Map<string, PlatformRateLimiter<any, any>>();
-const taskScheduler = new TaskScheduler(platformRateLimiters);
+export const platformRateLimiters = new Map<string, PlatformRateLimiter<any, any>>();
+export const jobScheduler = new JobScheduler(platformRateLimiters);
 
 export function throttle<T, U>(connection: Connection, fn: (arg: T) => Promise<U>, arg: T): Promise<U> {
   let platformRateLimiter = platformRateLimiters.get(connection.platform);
@@ -17,7 +17,7 @@ export function throttle<T, U>(connection: Connection, fn: (arg: T) => Promise<U
   return job.getPromise();
 }
 
-taskScheduler.pollForJobs();
+jobScheduler.pollForJobs();
 
 function createAndAddPlatformRateLimiter(platform: string, rateLimit: RateLimit): PlatformRateLimiter<any, any> {
   const platformRateLimiter = new PlatformRateLimiter(platform, rateLimit);
