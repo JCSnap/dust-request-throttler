@@ -23,7 +23,7 @@ export class PlatformRateLimiter<T, U> {
     return this.priorityQueue.dequeue();
   }
 
-  public peek(): Job<T, U> | undefined {
+  public peek(): Job<T, U> | null {
     return this.priorityQueue.peek();
   }
 
