@@ -8,11 +8,13 @@ export class Worker<T, U> {
     this.id = id;
   }
 
-  async work(job: Job<T, U>): Promise<U> {
+  async work(job: Job<T, U>): Promise<void> {
     this.isIdle = false;
-    const res = await job.execute();
-    this.isIdle = true;
-    return res;
+    try {
+      await job.execute();
+    } finally {
+      this.isIdle = true;
+    }
   }
 
   public getId(): number {

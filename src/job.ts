@@ -2,6 +2,8 @@ export class Job<T, U> {
   private fn: (arg: T) => Promise<U>;
   private arg: T;
   private niceness: number;
+  private resolve: ((value: U | PromiseLike<U>) => void) | null = null;
+  private reject: ((reason?: any) => void) | null = null;
 
   constructor(fn: (arg: T) => Promise<U>, arg: T, niceness: number) {
     this.fn = fn;
@@ -9,9 +11,16 @@ export class Job<T, U> {
     this.niceness = niceness;
   }
 
-  public async execute(): Promise<U> {
-    const res = this.fn(this.arg);
-    return res;
+  public async execute(): Promise<void> {
+    console.log("Executing job with niceness", this.niceness);
+    try {
+      const result = await this.fn(this.arg);
+      if (this.resolve) {
+        this.resolve(result);
+      }
+    } catch (error) {
+      if (this.reject) this.reject(error);
+    }
   }
 
   public getNiceness(): number {
@@ -19,6 +28,9 @@ export class Job<T, U> {
   }
 
   public getPromise(): Promise<U> {
-    return this.fn(this.arg);
+    return new Promise((resolve, reject) => {
+      this.resolve = resolve;
+      this.reject = reject;
+    });
   }
 }
