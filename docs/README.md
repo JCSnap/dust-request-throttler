@@ -19,7 +19,9 @@ docs
 
 ## Components in detail
 
-[!Class Diagram](./images/class-diagram.png)
+<p align="center">
+  <img src="./images/class-diagram.png" alt="Class Diagram">
+</p>
 
 ### Throttle
 
