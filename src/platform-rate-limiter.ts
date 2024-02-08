@@ -29,7 +29,7 @@ export class PlatformRateLimiter<T, U> {
 
   public getHighestPriorityJobIfAllowed(): Job<T, U> | null {
     if (this.priorityQueue.isEmpty()) {
-      return;
+      return null;
     }
 
     const currentTime = Date.now();
@@ -41,12 +41,11 @@ export class PlatformRateLimiter<T, U> {
     if (addingJobWillNotExceedRateLimit) {
       const job = this.dequeue();
       this.requestCountThisWindow++;
-      console.log(`Rate limit not exceeded for platform ${this.platform}`);
+      console.log("Successfully dequeued job with niceness", job.getNiceness());
       return job;
     } else {
       const delay = this.windowStartTimestamp + this.rateLimit.windowSeconds * 1000 - currentTime;
       console.log(`Rate limit exceeded for platform ${this.platform}. Waiting for ${delay}ms`);
-      setTimeout(() => this.getHighestPriorityJobIfAllowed(), delay);
     }
   }
 
