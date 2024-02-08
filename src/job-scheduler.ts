@@ -67,6 +67,7 @@ export class JobScheduler<T, U> {
   private assignJobsToWorkers() {
     for (const worker of this.idleWorkers) {
       const job = this.getHighestPriorityJob();
+      console.log("Assigning job to worker", worker.getId());
       if (job) {
         worker.work(job);
         this.idleWorkers.delete(worker);
@@ -76,14 +77,16 @@ export class JobScheduler<T, U> {
 
   private getHighestPriorityJob(): Job<T, U> | undefined {
     let highestPriorityJob: Job<T, U> | null;
+    let platformWithHighestPriorityJob: PlatformRateLimiter<T, U> | null;
     for (const platformRateLimiter of this.platformRateLimiters.values()) {
       const job = platformRateLimiter.peek();
       if (job) {
         if (!highestPriorityJob || job.getNiceness() < highestPriorityJob.getNiceness()) {
-          highestPriorityJob = platformRateLimiter.getHighestPriorityJobIfAllowed();
+          highestPriorityJob = platformRateLimiter.peek();
+          platformWithHighestPriorityJob = platformRateLimiter;
         }
       }
     }
-    return highestPriorityJob;
+    return platformWithHighestPriorityJob?.getHighestPriorityJobIfAllowed();
   }
 }
