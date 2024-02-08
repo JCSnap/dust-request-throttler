@@ -1,4 +1,6 @@
-export const MAX_WORKERS_COUNT = 1;
+export const MAX_WORKERS_COUNT = 4;
+
+export const DEFAULT_POLL_INTERVAL = 100; // 0.1 seconds
 
 // https://developers.notion.com/reference/request-limits#:~:text=The%20rate%20limit%20for%20incoming,of%20three%20requests%20per%20second.
 export const NOTION_RATE_LIMIT = {

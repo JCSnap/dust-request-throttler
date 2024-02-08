@@ -1,5 +1,5 @@
 import { type PlatformRateLimiter } from "./platform-rate-limiter";
-import { MAX_WORKERS_COUNT } from "./constants";
+import { MAX_WORKERS_COUNT, DEFAULT_POLL_INTERVAL } from "./constants";
 import { Worker } from "./worker";
 import { Job } from "./job";
 
@@ -7,14 +7,17 @@ export class TaskScheduler<T, U> {
   private platformRateLimiters: Map<string, PlatformRateLimiter<T, U>>;
   private numberOfWorkers: number;
   private workers: Worker<T, U>[];
+  private pollInterval: number;
   private idleWorkers: Set<Worker<T, U>>;
 
   constructor(
     platformRateLimiters: Map<string, PlatformRateLimiter<T, U>>,
-    numberOfWorkers: number = MAX_WORKERS_COUNT
+    numberOfWorkers: number = MAX_WORKERS_COUNT,
+    pollInterval: number = DEFAULT_POLL_INTERVAL
   ) {
     this.platformRateLimiters = platformRateLimiters;
     this.numberOfWorkers = numberOfWorkers;
+    this.pollInterval = pollInterval;
     this.initializeWorkers(numberOfWorkers);
     this.idleWorkers = new Set(this.workers);
   }
@@ -34,7 +37,7 @@ export class TaskScheduler<T, U> {
       } else {
         console.log("All workers are busy");
       }
-    }, 1000);
+    }, this.pollInterval);
   }
 
   private gatherIdleWorkers() {
