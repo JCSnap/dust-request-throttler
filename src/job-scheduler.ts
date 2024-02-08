@@ -67,8 +67,8 @@ export class JobScheduler<T, U> {
   private assignJobsToWorkers() {
     for (const worker of this.idleWorkers) {
       const job = this.getHighestPriorityJob();
-      console.log("Assigning job to worker", worker.getId());
       if (job) {
+        console.log("Assigning job to worker", worker.getId());
         worker.work(job);
         this.idleWorkers.delete(worker);
       }
