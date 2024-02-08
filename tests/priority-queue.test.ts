@@ -38,6 +38,22 @@ test("Priority Queue should be empty when no tasks are enqueued", async () => {
   expect(priorityQueue.isEmpty()).toBe(true);
 });
 
+test("Peek should return the highest priority task without dequeuing it", async () => {
+  const priorityQueue = new PriorityQueue();
+  priorityQueue.enqueue(job1, 1);
+  priorityQueue.enqueue(job2, 2);
+
+  expect(priorityQueue.peek()).toBe(job1);
+  expect(priorityQueue.peek()).toBe(job1);
+});
+
+test("Dequeue and peek should return null when the queue is empty", async () => {
+  const priorityQueue = new PriorityQueue();
+
+  expect(priorityQueue.dequeue()).toBe(null);
+  expect(priorityQueue.peek()).toBe(null);
+});
+
 const job1 = new Job(
   async (x) => {
     console.log(x);
