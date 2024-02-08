@@ -79,7 +79,7 @@ export class JobScheduler<T, U> {
     for (const platformRateLimiter of this.platformRateLimiters.values()) {
       const job = platformRateLimiter.peek();
       if (job) {
-        if (!highestPriorityJob || job.getNiceness() > highestPriorityJob.getNiceness()) {
+        if (!highestPriorityJob || job.getNiceness() < highestPriorityJob.getNiceness()) {
           highestPriorityJob = platformRateLimiter.getHighestPriorityJobIfAllowed();
         }
       }

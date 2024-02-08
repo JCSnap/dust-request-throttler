@@ -1,8 +1,6 @@
 import { throttle } from "../src/throttle";
-import { PlatformRateLimiter } from "../src/platform-rate-limiter";
-import { JobScheduler } from "../src/job-scheduler";
 import { NOTION_CONNECTION, GOOGLE_DRIVE_CONNECTION, SLACK_CONNECTION } from "../src/constants";
-import { platformRateLimiters, jobScheduler } from "../src/throttle";
+import { jobScheduler } from "../src/throttle";
 
 jest.useRealTimers();
 
@@ -80,11 +78,10 @@ test("Job should only be dequeued when rate limit allows even when there are fre
     await new Promise((resolve) => setTimeout(resolve, 100));
   };
 
+  const start = Date.now();
   const promise1 = throttle(connection, mockAsyncFunction1, null);
   const promise2 = throttle(connection, mockAsyncFunction2, null);
 
-  // record time to resolve all promises
-  const start = Date.now();
   await Promise.all([promise1, promise2]);
   const end = Date.now();
 
@@ -93,18 +90,78 @@ test("Job should only be dequeued when rate limit allows even when there are fre
   expect(end - start).toBeGreaterThanOrEqual(3000);
 });
 
-test("Job with lowest niceness should be processed first, even with multiple platforms", async () => {
+test("Job with lowest niceness should be processed first, within the same platform", async () => {
   jobScheduler.setWorkersCount(1);
 
   const connection1 = {
     platform: "testPlatform4",
     connection: "testConnection4",
     niceness: 1,
-    rateLimit: { requestCount: 1, windowSeconds: 3 },
+    rateLimit: { requestCount: 3, windowSeconds: 3 },
   };
   const connection2 = {
+    platform: "testPlatform4",
+    connection: "testConnection4",
+    niceness: 0,
+    rateLimit: { requestCount: 3, windowSeconds: 3 },
+  };
+  const connection3 = {
+    platform: "testPlatform4",
+    connection: "testConnection4",
+    niceness: 2,
+    rateLimit: { requestCount: 3, windowSeconds: 3 },
+  };
+
+  const dummyFunction = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  };
+  const mockAsyncFunction1 = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  };
+  const mockAsyncFunction2 = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  };
+  const mockAsyncFunction3 = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  };
+
+  // We use a dummy to make sure that the pq has time to "sort" before the first item is assigned to a job
+  const dummyPromise = throttle(connection2, dummyFunction, null);
+  const promise1 = throttle(connection1, mockAsyncFunction1, null);
+  const promise2 = throttle(connection2, mockAsyncFunction2, null);
+  const promise3 = throttle(connection3, mockAsyncFunction3, null);
+
+  let end1 = Date.now();
+  promise1.then(() => {
+    end1 = Date.now();
+  });
+  let end2 = Date.now();
+  promise2.then(() => {
+    end2 = Date.now();
+  });
+  let end3 = Date.now();
+  promise3.then(() => {
+    end3 = Date.now();
+  });
+
+  await Promise.all([promise1, promise2, promise3]);
+
+  expect(end2).toBeLessThan(end1);
+  expect(end1).toBeLessThan(end3);
+});
+
+test("Job with lowest niceness should be processed first, even with multiple platforms", async () => {
+  jobScheduler.setWorkersCount(1);
+
+  const connection1 = {
     platform: "testPlatform5",
     connection: "testConnection5",
+    niceness: 1,
+    rateLimit: { requestCount: 3, windowSeconds: 3 },
+  };
+  const connection2 = {
+    platform: "testPlatform6",
+    connection: "testConnection6",
     niceness: 0,
     rateLimit: { requestCount: 1, windowSeconds: 3 },
   };
@@ -113,13 +170,12 @@ test("Job with lowest niceness should be processed first, even with multiple pla
     await new Promise((resolve) => setTimeout(resolve, 1000));
   };
   const mockAsyncFunction1 = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 500));
   };
   const mockAsyncFunction2 = async () => {
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 500));
   };
 
-  // We use a dummy to make sure that the pq has time to "sort" before the first item is assigned to a job
   const dummyPromise = throttle(connection1, dummyFunction, null);
   const promise1 = throttle(connection1, mockAsyncFunction1, null);
   const promise2 = throttle(connection2, mockAsyncFunction2, null);
@@ -135,5 +191,6 @@ test("Job with lowest niceness should be processed first, even with multiple pla
 
   await Promise.all([promise1, promise2]);
 
+  console.log(end1, end2);
   expect(end2).toBeLessThan(end1);
 });
