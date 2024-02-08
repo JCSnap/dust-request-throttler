@@ -3,12 +3,12 @@ import { MAX_WORKERS_COUNT, DEFAULT_POLL_INTERVAL } from "./constants";
 import { Worker } from "./worker";
 import { Job } from "./job";
 
-export class TaskScheduler<T, U> {
+export class JobScheduler<T, U> {
   private platformRateLimiters: Map<string, PlatformRateLimiter<T, U>>;
-  private numberOfWorkers: number;
   private workers: Worker<T, U>[];
   private pollInterval: number;
   private idleWorkers: Set<Worker<T, U>>;
+  public busyCount: number = 0; // for testing purposes
 
   constructor(
     platformRateLimiters: Map<string, PlatformRateLimiter<T, U>>,
@@ -16,10 +16,24 @@ export class TaskScheduler<T, U> {
     pollInterval: number = DEFAULT_POLL_INTERVAL
   ) {
     this.platformRateLimiters = platformRateLimiters;
-    this.numberOfWorkers = numberOfWorkers;
     this.pollInterval = pollInterval;
     this.initializeWorkers(numberOfWorkers);
-    this.idleWorkers = new Set(this.workers);
+  }
+
+  // for testing purposes
+  public setPollInterval(pollInterval: number) {
+    this.pollInterval = pollInterval;
+  }
+
+  // for testing purposes
+  public setWorkersCount(numberOfWorkers: number) {
+    this.initializeWorkers(numberOfWorkers);
+  }
+
+  // for testing purposes
+  public restoreDefault() {
+    this.setPollInterval(DEFAULT_POLL_INTERVAL);
+    this.setWorkersCount(MAX_WORKERS_COUNT);
   }
 
   private initializeWorkers(numberOfWorkers: number) {
@@ -27,6 +41,7 @@ export class TaskScheduler<T, U> {
     for (let i = 0; i < numberOfWorkers; i++) {
       this.workers[i] = new Worker(i);
     }
+    this.idleWorkers = new Set(this.workers);
   }
 
   public pollForJobs() {
@@ -35,6 +50,7 @@ export class TaskScheduler<T, U> {
       if (this.idleWorkers.size > 0) {
         this.assignJobsToWorkers();
       } else {
+        this.busyCount++;
         console.log("All workers are busy");
       }
     }, this.pollInterval);
