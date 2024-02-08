@@ -39,4 +39,6 @@ I mainly use an Objected Oriented approach to design the system, with a mix of f
 - `PlatformRateLimiter`: A class that is responsible for actions related to its platform. Each platform will have its own `PlatformRateLimiter`. It enforces the rate limit by keeping track of the request count and time window. It also manages the queue that contains jobs connected to its platform.
 - `JobScheduler`: A class that orchestrates task execution across multiple platforms. It periodically polls for jobs based on priority and availability of workers and assign accordingly.
 
+[!Class Diagram](./docs/images/class-diagram.png)
+
 _For more detailed documentation, go to `docs/`._
