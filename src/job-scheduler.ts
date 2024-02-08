@@ -8,6 +8,7 @@ export class JobScheduler<T, U> {
   private workers: Worker<T, U>[];
   private pollInterval: number;
   private idleWorkers: Set<Worker<T, U>>;
+  private pollingIntervalId: NodeJS.Timeout | null = null;
   public busyCount: number = 0; // for testing purposes
 
   constructor(
@@ -45,7 +46,7 @@ export class JobScheduler<T, U> {
   }
 
   public pollForJobs() {
-    setInterval(() => {
+    this.pollingIntervalId = setInterval(() => {
       this.gatherIdleWorkers();
       if (this.idleWorkers.size > 0) {
         this.assignJobsToWorkers();
@@ -54,6 +55,12 @@ export class JobScheduler<T, U> {
         console.log("All workers are busy");
       }
     }, this.pollInterval);
+  }
+
+  public stopPolling() {
+    if (this.pollingIntervalId) {
+      clearInterval(this.pollingIntervalId);
+    }
   }
 
   private gatherIdleWorkers() {

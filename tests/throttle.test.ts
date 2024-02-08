@@ -191,6 +191,9 @@ test("Job with lowest niceness should be processed first, even with multiple pla
 
   await Promise.all([promise1, promise2]);
 
-  console.log(end1, end2);
   expect(end2).toBeLessThan(end1);
+});
+
+afterAll(() => {
+  jobScheduler.stopPolling();
 });
