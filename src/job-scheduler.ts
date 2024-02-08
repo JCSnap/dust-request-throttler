@@ -5,17 +5,23 @@ import { Job } from "./job";
 
 export class TaskScheduler<T, U> {
   private platformRateLimiters: Map<string, PlatformRateLimiter<T, U>>;
-  private workers: Worker<T, U>[] = Array(MAX_WORKERS_COUNT);
+  private numberOfWorkers: number;
+  private workers: Worker<T, U>[];
   private idleWorkers: Set<Worker<T, U>>;
 
-  constructor(platformRateLimiters: Map<string, PlatformRateLimiter<T, U>>) {
+  constructor(
+    platformRateLimiters: Map<string, PlatformRateLimiter<T, U>>,
+    numberOfWorkers: number = MAX_WORKERS_COUNT
+  ) {
     this.platformRateLimiters = platformRateLimiters;
-    this.initializeWorkers();
+    this.numberOfWorkers = numberOfWorkers;
+    this.initializeWorkers(numberOfWorkers);
     this.idleWorkers = new Set(this.workers);
   }
 
-  private initializeWorkers() {
-    for (let i = 0; i < MAX_WORKERS_COUNT; i++) {
+  private initializeWorkers(numberOfWorkers: number) {
+    this.workers = new Array(numberOfWorkers);
+    for (let i = 0; i < numberOfWorkers; i++) {
       this.workers[i] = new Worker(i);
     }
   }
@@ -34,7 +40,7 @@ export class TaskScheduler<T, U> {
   private gatherIdleWorkers() {
     for (const worker of this.workers) {
       if (worker.isIdle) {
-        this.idleWorkers.add(worker);
+        this.idleWorkers.add(worker); // there won't be duplicates since the same worker has the same hash
       }
     }
   }
