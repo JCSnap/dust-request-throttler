@@ -94,6 +94,31 @@ export const SLACK_CONNECTION_ANALYTICS = {
   rateLimit: SLACK_RATE_LIMIT,
 };
 
+// bad rate limits and connections
+export const BAD_RATE_LIMIT = {
+  requestCount: 1,
+  windowSeconds: 1,
+};
+
+export const BAD_RATE_LIMIT_2 = {
+  requestCount: 2,
+  windowSeconds: 4,
+};
+
+export const BAD_CONNECTION = {
+  platform: "bad_platform",
+  connection: "bad_connection",
+  niceness: 0,
+  rateLimit: BAD_RATE_LIMIT,
+};
+
+export const BAD_CONNECTION_2 = {
+  platform: "bad_platform_2",
+  connection: "bad_connection_2",
+  niceness: 1,
+  rateLimit: BAD_RATE_LIMIT_2,
+};
+
 // functions
 export async function collectGarbage() {
   await new Promise((resolve) => {
