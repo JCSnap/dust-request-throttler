@@ -1,6 +1,3 @@
-import { createClient } from "redis";
-import { RateLimiter } from "./rate-limiter";
-import { Connection } from "./types/connection";
 import { type PlatformRateLimiter } from "./platform-rate-limiter";
 import { MAX_WORKERS_COUNT } from "./constants";
 import { Worker } from "./worker";
